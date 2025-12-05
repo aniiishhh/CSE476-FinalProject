@@ -21,7 +21,7 @@ def _post(payload, timeout=60):
 
 
 def call_llm(
-    prompt, system=DEFAULT_SYSTEM, temperature=0.0, max_tokens=256, timeout=60
+    prompt, system=DEFAULT_SYSTEM, temperature=0.0, max_tokens=4096, timeout=60
 ):
     payload = {
         "model": MODEL,
@@ -36,7 +36,7 @@ def call_llm(
 
 
 def chat_llm(
-    messages, temperature=0.2, max_tokens=256, timeout=60, system=DEFAULT_SYSTEM
+    messages, temperature=0.2, max_tokens=4096, timeout=60, system=DEFAULT_SYSTEM
 ):
     full_messages = [{"role": "system", "content": system}] + messages
 

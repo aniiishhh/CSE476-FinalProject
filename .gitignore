@@ -1,3 +1,8 @@
+src/cot_debug.log
+src/test_math.py
+cot_debug.log
+src/test_math_v2.py
+
 # Virtual Environment
 venv/
 .venv/

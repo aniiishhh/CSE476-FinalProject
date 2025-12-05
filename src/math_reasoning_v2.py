@@ -2,6 +2,7 @@ import re
 from collections import Counter
 from src.api import call_llm
 
+# Debugging log file for tracking the thought process of the model
 def log_to_file(message):
     with open("src/cot_debug.log", "a") as f:
         f.write(message + "\n")

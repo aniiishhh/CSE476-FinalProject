@@ -21,6 +21,7 @@ The core of the agent is a **Router-Solver** architecture:
     ├── planning.py              # Planning domain solver
     ├── common_sense.py          # Common Sense domain solver
     ├── future_prediction.py     # Future Prediction domain solver
+    ├── tests/                   # Test files
     └── data/                    # Data directory
         ├── cse_476_final_project_test_data.json  # Input questions
         └── cse_476_final_project_answers.json    # Final output answers

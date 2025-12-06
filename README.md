@@ -79,7 +79,7 @@ The core of the agent is a **Router-Solver** architecture:
 Ensure you have Python installed and the necessary dependencies. The project relies on standard libraries and the `requests` library for API calls.
 
 ```bash
-pip install requests
+pip install -r requirements.txt
 ```
 
 Ensure the input data file is present at `src/data/cse_476_final_project_test_data.json`.

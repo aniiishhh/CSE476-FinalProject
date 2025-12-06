@@ -1,7 +1,24 @@
 src/cot_debug.log
 src/test_math.py
 cot_debug.log
-src/test_math_v2.py
+# src/test_math_v2.py
+# src/test_code_reasoning_manual.py
+# src/test_future_prediction.py
+# src/test_common_sense_manual.py
+# src/test_common_sense2.py
+test_subset.json
+test_subset_answers.json
+test_subset_debug.json
+test_subset_debug_answers.json
+merge_and_verify.py
+run_parallel.py
+retry_errors.py
+solve_missing.py
+finalize_submission.py
+count_progress.py
+chunks/*
+validate_final_answers.py
+
 
 # Virtual Environment
 venv/

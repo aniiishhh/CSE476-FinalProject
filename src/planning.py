@@ -5,7 +5,7 @@ def log_to_file(message):
     with open("src/cot_debug.log", "a") as f:
         f.write(message + "\n")
 
-def extract_and_normalize(problem: str):
+def extract_and_normalize(problem: str, logging: bool = False):
     system_prompt = (
         "You are an expert planning problem extractor. "
         "Your goal is to extract the actions, preconditions, add effects, delete effects, "
@@ -30,12 +30,14 @@ def extract_and_normalize(problem: str):
         "3. Extract EVERY single fact from the initial state."
     )
     
-    log_to_file(f"\n=== New Planning Run ===\n[Step 1: Extract and Normalize]")
+    if logging:
+        log_to_file(f"\n=== New Planning Run ===\n[Step 1: Extract and Normalize]")
     response = call_llm(prompt, system=system_prompt, temperature=0.0, timeout=120, max_tokens=3000)
-    log_to_file(f"\n[Normalized Problem]\n{response}")
+    if logging:
+        log_to_file(f"\n[Normalized Problem]\n{response}")
     return response
 
-def generate_draft_plan(normalized_problem: str):
+def generate_draft_plan(normalized_problem: str, logging: bool = False):
     system_prompt = (
         "You are a strategic planner. Generate a plan to solve the problem starting from the initial state. "
         "Think step by step: check preconditions, apply effects, and update the state until the goal is reached. "
@@ -50,12 +52,14 @@ def generate_draft_plan(normalized_problem: str):
         "..."
     )
     
-    log_to_file(f"\n[Step 2: Generate Draft Plan]")
+    if logging:
+        log_to_file(f"\n[Step 2: Generate Draft Plan]")
     response = call_llm(prompt, system=system_prompt, temperature=0.3, timeout=120, max_tokens=4096)
-    log_to_file(f"\n[Draft Plan]\n{response}\n")
+    if logging:
+        log_to_file(f"\n[Draft Plan]\n{response}\n")
     return response
 
-def validate_and_repair(normalized_problem: str, draft_plan: str):
+def validate_and_repair(normalized_problem: str, draft_plan: str, logging: bool = False):
     system_prompt = (
         "You are a rigorous plan validator and repairer. "
         "Simulate the plan step by step against the problem definition. "
@@ -72,12 +76,14 @@ def validate_and_repair(normalized_problem: str, draft_plan: str):
         "Please simulate and repair the plan. Output the final plan in the same format."
     )
     
-    log_to_file(f"\n[Step 3: Validate and Repair]")
+    if logging:
+        log_to_file(f"\n[Step 3: Validate and Repair]")
     response = call_llm(prompt, system=system_prompt, temperature=0.0, timeout=120, max_tokens=2048)
-    log_to_file(f"\n[Validated Plan]\n{response}\n")
+    if logging:
+        log_to_file(f"\n[Validated Plan]\n{response}\n")
     return response
 
-def format_plan(validated_plan: str):
+def format_plan(validated_plan: str, logging: bool = False):
     system_prompt = (
         "You are a plan formatter. Format the plan exactly as required. "
         "Output ONLY the plan steps in parentheses, one per line. "
@@ -92,9 +98,11 @@ def format_plan(validated_plan: str):
         "Format the plan now."
     )
     
-    log_to_file(f"\n[Step 4: Format Plan]")
+    if logging:
+        log_to_file(f"\n[Step 4: Format Plan]")
     response = call_llm(prompt, system=system_prompt, temperature=0.0, timeout=60, max_tokens=1000)
-    log_to_file(f"\n[Formatted Plan]\n{response}\n")
+    if logging:
+        log_to_file(f"\n[Formatted Plan]\n{response}\n")
     return response
 
 def force_final_cleaning(formatted_plan: str):
@@ -107,19 +115,19 @@ def force_final_cleaning(formatted_plan: str):
     response = call_llm(prompt, system=system_prompt, temperature=0.0, timeout=60, max_tokens=1000)
     return response.strip()
 
-def solve_planning_problem(question: str):
+def solve_planning_problem(question: str, logging: bool = False):
     try:
         # Step 1: Extract and Normalize
-        normalized_problem = extract_and_normalize(question)
+        normalized_problem = extract_and_normalize(question, logging=logging)
         
         # Step 2: Generate Draft Plan
-        draft_plan = generate_draft_plan(normalized_problem)
+        draft_plan = generate_draft_plan(normalized_problem, logging=logging)
         
         # Step 3: Validate and Repair
-        validated_plan = validate_and_repair(normalized_problem, draft_plan)
+        validated_plan = validate_and_repair(normalized_problem, draft_plan, logging=logging)
         
         # Step 4: Format
-        formatted_plan = format_plan(validated_plan)
+        formatted_plan = format_plan(validated_plan, logging=logging)
         
         # Step 5: Final Cleaning
         final_plan = force_final_cleaning(formatted_plan)
@@ -127,5 +135,6 @@ def solve_planning_problem(question: str):
         return final_plan
         
     except Exception as e:
-        log_to_file(f"[Error] {str(e)}")
+        if logging:
+            log_to_file(f"[Error] {str(e)}")
         return f"Error: {str(e)}"

@@ -5,7 +5,7 @@ def log_to_file(message):
     with open("src/cot_debug.log", "a") as f:
         f.write(message + "\n")
 
-def plan_code(question: str) -> str:
+def plan_code(question: str, logging: bool = False) -> str:
     system_prompt = (
         "You are a strategic coding planner. Create a concise, step-by-step plan to solve the coding problem. "
         "Do not write any code."
@@ -17,12 +17,14 @@ def plan_code(question: str) -> str:
         "Do not write any code."
     )
     
-    log_to_file(f"\n=== New Code Run ===\nQuestion: {question}")
+    if logging:
+        log_to_file(f"\n=== New Code Run ===\nQuestion: {question}")
     response = call_llm(prompt, system=system_prompt, temperature=0.2)
-    log_to_file(f"\n[Plan]\n{response}\n")
+    if logging:
+        log_to_file(f"\n[Plan]\n{response}\n")
     return response.strip()
 
-def generate_code(question: str, plan: str) -> str:
+def generate_code(question: str, plan: str, logging: bool = False) -> str:
     system_prompt = (
         "You are a precise Python coder. Implement the function exactly following the plan. "
         "Output only valid Python code, no backticks, no explanation. Write simple, readable code without complex logic."
@@ -36,7 +38,8 @@ def generate_code(question: str, plan: str) -> str:
     )
     
     response = call_llm(prompt, system=system_prompt, temperature=0.2)
-    log_to_file(f"\n[Code]\n{response}\n")
+    if logging:
+        log_to_file(f"\n[Code]\n{response}\n")
     
     # Clean up code (remove unnecessary formatting)
     code = response.strip()
@@ -48,7 +51,7 @@ def generate_code(question: str, plan: str) -> str:
         code = code[:-3]
     return code.strip()
 
-def critic_and_fix(question: str, plan: str, code: str) -> str:
+def critic_and_fix(question: str, plan: str, code: str, logging: bool = False) -> str:
     system_prompt = (
         "You are a rigorous code reviewer. Review the solution for correctness against requirements. "
         "Do concise reasoning first, then at the very end output ONLY the final code (no explanation) "
@@ -67,7 +70,8 @@ def critic_and_fix(question: str, plan: str, code: str) -> str:
     )
     
     response = call_llm(prompt, system=system_prompt, temperature=0.2)
-    log_to_file(f"\n[Critic]\n{response}\n")
+    if logging:
+        log_to_file(f"\n[Critic]\n{response}\n")
     
     # Extract final code
     if "FINAL CODE:" in response:
@@ -85,7 +89,7 @@ def critic_and_fix(question: str, plan: str, code: str) -> str:
         
     return final_code.strip()
 
-def remove_preamble(question: str, code: str) -> str:
+def remove_preamble(question: str, code: str, logging: bool = False) -> str:
     system_prompt = (
         "You are a code formatter. Your task is to remove the starting code snippet that was provided in the question from the final solution code."
     )
@@ -102,7 +106,8 @@ def remove_preamble(question: str, code: str) -> str:
     )
     
     response = call_llm(prompt, system=system_prompt, temperature=0.0)
-    log_to_file(f"\n[Remove Preamble]\n{response}\n")
+    if logging:
+        log_to_file(f"\n[Remove Preamble]\n{response}\n")
     
     # Clean up code
     cleaned_code = response.strip()
@@ -112,13 +117,14 @@ def remove_preamble(question: str, code: str) -> str:
         
     return cleaned_code.strip()
 
-def solve_coding_problem(question: str) -> str:
+def solve_coding_problem(question: str, logging: bool = False) -> str:
     try:
-        plan = plan_code(question)
-        code = generate_code(question, plan)
-        final_code = critic_and_fix(question, plan, code)
-        cleaned_code = remove_preamble(question, final_code)
+        plan = plan_code(question, logging=logging)
+        code = generate_code(question, plan, logging=logging)
+        final_code = critic_and_fix(question, plan, code, logging=logging)
+        cleaned_code = remove_preamble(question, final_code, logging=logging)
         return cleaned_code
     except Exception as e:
-        log_to_file(f"[Error] {str(e)}")
+        if logging:
+            log_to_file(f"[Error] {str(e)}")
         return f"Error: {str(e)}"
